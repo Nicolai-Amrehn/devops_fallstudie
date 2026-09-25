@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Bestellung')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>Bestellung <span th:text="${order.id}" data-testid="order-id">0</span></h1>
+  <p>Status: <strong th:text="${order.status}" data-testid="order-status">NEW</strong></p>
+  <p>Versand: <span th:text="${order.shippingMethod.label}">Versand</span> ·
+     Zahlung: <span th:text="${order.paymentMethod.label}">Zahlung</span> ·
+     Referenz: <code th:text="${order.paymentReference}" data-testid="payment-reference">-</code></p>
+  <table class="lines">
+    <tbody>
+    <tr th:each="l : ${order.lines}">
+      <td th:text="${l.description}">Artikel</td>
+      <td th:text="${l.quantity} + ' ×'">1</td>
+      <td th:text="${#numbers.formatDecimal(l.lineTotal, 1, 'POINT', 2, 'COMMA')} + ' €'">0</td>
+    </tr>
+    </tbody>
+    <tfoot><tr><th colspan="2">Gesamt</th><th data-testid="order-total"
+      th:text="${#numbers.formatDecimal(order.total, 1, 'POINT', 2, 'COMMA')} + ' €'">0</th></tr></tfoot>
+  </table>
+  <p><a th:href="@{/orders}">Alle Bestellungen</a></p>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

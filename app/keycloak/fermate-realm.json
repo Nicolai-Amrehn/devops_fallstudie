@@ -1,0 +1,51 @@
+{
+  "realm": "fermate",
+  "enabled": true,
+  "displayName": "Fermate Musikhandel",
+  "registrationAllowed": false,
+  "loginTheme": "keycloak",
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "customer", "description": "Kundin oder Kunde des Webshops" },
+      { "name": "staff", "description": "Mitarbeitende der Fermate Musikhandel GmbH" }
+    ]
+  },
+  "users": [
+    {
+      "username": "anna",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Anna",
+      "lastName": "Beispiel",
+      "email": "anna@example.test",
+      "credentials": [ { "type": "password", "value": "anna123", "temporary": false } ],
+      "realmRoles": [ "customer" ]
+    },
+    {
+      "username": "ben",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ben",
+      "lastName": "Muster",
+      "email": "ben@example.test",
+      "credentials": [ { "type": "password", "value": "ben123", "temporary": false } ],
+      "realmRoles": [ "customer", "staff" ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "shop",
+      "name": "Fermate Webshop",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "shop-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [ "http://localhost:8080/*", "http://webshop:8080/*", "http://127.0.0.1:*/*" ],
+      "webOrigins": [ "+" ],
+      "defaultClientScopes": [ "openid", "profile", "email", "roles" ]
+    }
+  ]
+}

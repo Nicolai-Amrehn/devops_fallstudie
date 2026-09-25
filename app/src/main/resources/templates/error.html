@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Fehler')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>Das hat nicht geklappt</h1>
+  <p th:text="${status} + ' – ' + ${error}">Fehler</p>
+  <p><a th:href="@{/}">Zurück zum Katalog</a></p>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

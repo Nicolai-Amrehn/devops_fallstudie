@@ -1,0 +1,14 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/payments",
+    "bodyPatterns": [ { "matchesJsonPath": "$[?(@.method == 'INSTALLMENTS')]" } ]
+  },
+  "response": {
+    "status": 201,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "reference": "inst-{{randomValue length=12 type='ALPHANUMERIC' lowercase=true}}", "status": "PENDING" },
+    "transformers": [ "response-template" ]
+  }
+}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Meine Bestellungen')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>Meine Bestellungen</h1>
+  <p th:if="${#lists.isEmpty(orders)}">Noch keine Bestellungen.</p>
+  <ul>
+    <li th:each="o : ${orders}">
+      <a th:href="@{/orders/{id}(id=${o.id})}" th:text="'Bestellung ' + ${o.id}">Bestellung</a>
+      – <span th:text="${o.status}">Status</span>
+      – <span th:text="${#numbers.formatDecimal(o.total, 1, 'POINT', 2, 'COMMA')} + ' €'">0</span>
+    </li>
+  </ul>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

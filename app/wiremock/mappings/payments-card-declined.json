@@ -1,0 +1,13 @@
+{
+  "priority": 4,
+  "request": {
+    "method": "POST",
+    "urlPath": "/payments",
+    "bodyPatterns": [ { "matchesJsonPath": "$[?(@.method == 'CARD' && @.amount >= 9000)]" } ]
+  },
+  "response": {
+    "status": 201,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "reference": "pay-declined", "status": "DECLINED" }
+  }
+}

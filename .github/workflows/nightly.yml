@@ -1,0 +1,43 @@
+# Nächtlicher Lasttest gegen das zuletzt auf main gebaute Image.
+name: Nightly Lasttest
+
+on:
+  schedule:
+    - cron: "0 3 * * 1-5"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  load:
+    name: Gatling
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}/fermate-shop
+      PAYMENT_CALLBACK_TOKEN: ${{ secrets.PAYMENT_CALLBACK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      # Registry-Namen müssen kleingeschrieben sein
+      - run: echo "APP_IMAGE=${IMAGE,,}:main" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21", cache: maven }
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker compose up --detach --wait webshop
+      - run: mvn -B -ntp gatling:test -Dgatling.baseUrl=http://localhost:8080
+      - run: docker compose down --volumes
+        if: always()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gatling-report
+          path: app/target/gatling
+          retention-days: 30

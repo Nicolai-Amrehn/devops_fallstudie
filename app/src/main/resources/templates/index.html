@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Katalog')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>Katalog</h1>
+  <form method="get" th:action="@{/}" class="search">
+    <input type="search" name="q" th:value="${query}" placeholder="Instrument, Marke oder Kategorie" data-testid="search-input">
+    <button type="submit" data-testid="search-submit">Suchen</button>
+  </form>
+  <p th:if="${#lists.isEmpty(products)}" data-testid="no-results">Keine Artikel gefunden.</p>
+  <ul class="products">
+    <li th:each="p : ${products}" th:attr="data-testid='product-' + ${p.id}">
+      <a th:href="@{/products/{id}(id=${p.id})}" th:text="${p.name}">Artikel</a>
+      <span class="brand" th:text="${p.brand}">Marke</span>
+      <span class="badge" th:if="${p.promotionPercent > 0}" th:text="'-' + ${p.promotionPercent} + ' %'">Aktion</span>
+      <span class="badge" th:if="${p.BStock}">B-Ware</span>
+      <span class="badge" th:if="${p.bulky}">Sperrgut</span>
+      <strong th:text="${#numbers.formatDecimal(p.grossPrice, 1, 'POINT', 2, 'COMMA')} + ' €'">Preis</strong>
+      <em th:unless="${p.available}">ausverkauft</em>
+    </li>
+  </ul>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

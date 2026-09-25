@@ -1,0 +1,81 @@
+# Anwendung mit Datenbank, Identity Provider und Zahlungs-Stub, lokal und in CI.
+# Keycloak ist für Browser und Anwendung unter keycloak:8180 erreichbar, damit der Issuer passt.
+# Der Dienst heißt webshop statt app, weil Chromium für die TLD .app HTTPS erzwingt (HSTS).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U shop -d shop" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.7.4}
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: "8180"
+      KC_HOSTNAME: http://keycloak:8180
+      KC_HOSTNAME_STRICT: "false"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    ports:
+      - "8180:8180"
+    healthcheck:
+      # Keycloak-Image hat kein curl; die Management-Schnittstelle antwortet auf 9000.
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' >&3; grep -q '\"UP\"' <&3" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  payment:
+    image: wiremock/wiremock:3.13.2
+    command: --global-response-templating --verbose
+    volumes:
+      - ./wiremock:/home/wiremock:ro
+
+  webshop:
+    image: ${APP_IMAGE:-ghcr.io/nicolai-amrehn/devops_fallstudie/fermate-shop:local}
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      payment:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/shop
+      DB_USER: shop
+      DB_PASSWORD: shop
+      KEYCLOAK_ISSUER: http://keycloak:8180/realms/fermate
+      KEYCLOAK_CLIENT_SECRET: shop-secret
+      PAYMENT_BASE_URL: http://payment:8080
+      # Aus .env (lokal) bzw. aus einem GitHub Secret (CI).
+      PAYMENT_CALLBACK_TOKEN: ${PAYMENT_CALLBACK_TOKEN:?PAYMENT_CALLBACK_TOKEN muss gesetzt sein}
+    ports:
+      - "8080:8080"
+
+  # End-to-End-Tests laufen im selben Netz wie die Anwendung: `docker compose --profile e2e run --rm e2e`
+  e2e:
+    profiles: [ "e2e" ]
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    working_dir: /work
+    volumes:
+      - ./e2e:/work
+    environment:
+      BASE_URL: http://webshop:8080
+      PAYMENT_CALLBACK_TOKEN: ${PAYMENT_CALLBACK_TOKEN:?PAYMENT_CALLBACK_TOKEN muss gesetzt sein}
+      CI: "true"
+    depends_on:
+      webshop:
+        condition: service_healthy
+    command: sh -c "npm ci && npx playwright test"

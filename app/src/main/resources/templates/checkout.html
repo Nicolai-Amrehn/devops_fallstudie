@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Kasse')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>Kasse</h1>
+  <p class="error" th:if="${error}" th:text="${error}" data-testid="checkout-error">Fehler</p>
+  <p th:if="${cart.empty}" data-testid="cart-empty">Der Warenkorb ist leer.</p>
+  <form th:unless="${cart.empty}" method="post" th:action="@{/checkout}">
+    <fieldset>
+      <legend>Versandart</legend>
+      <p th:if="${cart.containsBulkyItem}" class="hint" data-testid="bulky-hint">Sperrgut im Warenkorb: Versand nur per Spedition.</p>
+      <label th:each="s : ${shippingMethods}">
+        <input type="radio" name="shippingMethod" th:value="${s}" th:checked="${sStat.first}" th:attr="data-testid='shipping-' + ${s}">
+        <span th:text="${s.label}">Versand</span>
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Zahlungsart</legend>
+      <label th:each="p : ${paymentMethods}">
+        <input type="radio" name="paymentMethod" th:value="${p}" th:checked="${pStat.first}" th:attr="data-testid='payment-' + ${p}">
+        <span th:text="${p.label}">Zahlung</span>
+      </label>
+    </fieldset>
+    <p>Gesamtbetrag: <strong data-testid="checkout-total"
+      th:text="${#numbers.formatDecimal(cart.total, 1, 'POINT', 2, 'COMMA')} + ' €'">0</strong></p>
+    <button type="submit" data-testid="place-order">Zahlungspflichtig bestellen</button>
+  </form>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

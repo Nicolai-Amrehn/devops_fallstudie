@@ -1,0 +1,13 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/credit-checks",
+    "bodyPatterns": [ { "matchesJsonPath": "$[?(@.amount <= 5000)]" } ]
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "approved": true, "reason": "OK" }
+  }
+}

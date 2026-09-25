@@ -1,0 +1,4 @@
+app/.env
+app/target/
+.idea/
+.DS_Store

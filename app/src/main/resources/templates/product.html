@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Artikel')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1 th:text="${product.name}" data-testid="product-name">Artikel</h1>
+  <p><span th:text="${product.brand}">Marke</span> · <span th:text="${product.category}">Kategorie</span>
+    <span class="badge" th:if="${product.bulky}">Sperrgut – nur Spedition</span>
+    <span class="badge" th:if="${product.BStock}">B-Ware</span></p>
+  <p class="price" data-testid="product-price"
+     th:text="${#numbers.formatDecimal(product.grossPrice, 1, 'POINT', 2, 'COMMA')} + ' € inkl. MwSt.'">Preis</p>
+  <table class="variants">
+    <thead><tr><th>Variante</th><th>Artikelnummer</th><th>Bestand</th><th></th></tr></thead>
+    <tbody>
+    <tr th:each="v : ${product.variants}" th:attr="data-testid='variant-' + ${v.sku}">
+      <td th:text="${v.label}">Variante</td>
+      <td th:text="${v.sku}">SKU</td>
+      <td th:text="${v.available} ? 'verfügbar' : 'ausverkauft'" data-testid="variant-availability">Bestand</td>
+      <td>
+        <form th:if="${v.available}" method="post" th:action="@{/cart/items}">
+          <input type="hidden" name="sku" th:value="${v.sku}">
+          <input type="number" name="quantity" value="1" min="1" th:max="${v.stock}" aria-label="Menge">
+          <button type="submit" data-testid="add-to-cart">In den Warenkorb</button>
+        </form>
+        <button th:unless="${v.available}" type="button" disabled data-testid="sold-out">Nicht bestellbar</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

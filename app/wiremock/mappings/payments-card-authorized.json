@@ -1,0 +1,14 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/payments",
+    "bodyPatterns": [ { "matchesJsonPath": "$[?(@.method == 'CARD' && @.amount < 9000)]" } ]
+  },
+  "response": {
+    "status": 201,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "reference": "pay-{{randomValue length=12 type='ALPHANUMERIC' lowercase=true}}", "status": "AUTHORIZED" },
+    "transformers": [ "response-template" ]
+  }
+}

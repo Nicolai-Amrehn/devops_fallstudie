@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- Gemeinsame Fragmente aller Seiten: head, header (Navigation), footer. -->
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · Fermate Musikhandel'">Fermate Musikhandel</title>
+  <link rel="stylesheet" th:href="@{/css/shop.css}">
+</head>
+<body>
+<header th:fragment="header">
+  <a class="brand" th:href="@{/}">Fermate Musikhandel</a>
+  <nav>
+    <a th:href="@{/cart}" data-testid="nav-cart">Warenkorb</a>
+    <a th:href="@{/orders}" sec:authorize="isAuthenticated()" data-testid="nav-orders">Bestellungen</a>
+    <span sec:authorize="isAuthenticated()" data-testid="nav-user" sec:authentication="name">Nutzer</span>
+    <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="inline">
+      <button type="submit" data-testid="nav-logout">Abmelden</button>
+    </form>
+    <a sec:authorize="!isAuthenticated()" th:href="@{/oauth2/authorization/keycloak}" data-testid="nav-login">Anmelden</a>
+  </nav>
+</header>
+<footer th:fragment="footer">Fermate Musikhandel GmbH · fiktiver Webshop für die IU-Fallstudie DLBSEPDOCD01_D</footer>
+</body>
+</html>
