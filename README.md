@@ -27,6 +27,10 @@ Das Image wird erst nach bestandenen Unit- und Integrationstests gebaut; die
 E2E-Tests laufen gegen dieses Image. Das Repository-Secret
 `PAYMENT_CALLBACK_TOKEN` muss gesetzt sein.
 
+Auf `main` gilt eine Branch-Regel: Änderungen werden nur übernommen, wenn die
+Jobs Formatierung, Unit-Tests, Integrationstests, Docker-Image und
+End-to-End-Tests grün sind.
+
 ## Lokal ausführen
 
 Voraussetzungen: JDK 21, Maven, Docker.
